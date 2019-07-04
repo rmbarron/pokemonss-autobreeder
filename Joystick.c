@@ -18,6 +18,8 @@ exception of Home and Capture. Descriptor modification allows us to unlock
 these buttons for our use.
 */
 
+// make && sudo dfu-programmer atmega16u2 erase && sudo dfu-programmer atmega16u2 flash Joystick.hex
+
 #include "Joystick.h"
 
 typedef enum {
@@ -33,6 +35,8 @@ typedef enum {
 	R,
 	THROW,
 	NOTHING,
+	PLUS,
+	MINUS,
 	TRIGGERS
 } Buttons_t;
 
@@ -45,145 +49,200 @@ static const command step[] = {
 	// Setup controller
 	{ NOTHING,  250 },
 	{ TRIGGERS,   5 },
-	{ NOTHING,  150 },
+	{ NOTHING,  140 },
 	{ TRIGGERS,   5 },
+	{ NOTHING,  140 },
+	{ A,          5 },
+	{ NOTHING,  160 },
+
+	// Save
+	{ NOTHING,   40 },
+	{ A,          5 },
+	{ NOTHING,  120 },
+	{ A,          5 },
 	{ NOTHING,  150 },
 	{ A,          5 },
-	{ NOTHING,  250 },
 
-	// Talk to Pondo
-	{ A,          5 }, // Start
-	{ NOTHING,   30 },
-	{ B,          5 }, // Quick output of text
-	{ NOTHING,   20 }, // Halloo, kiddums!
-	{ A,          5 }, // <- I'll try it!
-	{ NOTHING,   15 },
-	{ B,          5 },
-	{ NOTHING,   20 },
-	{ A,          5 }, // <- OK!
-	{ NOTHING,   15 },
-	{ B,          5 },
-	{ NOTHING,   20 }, // Aha! Play bells are ringing! I gotta set up the pins, but I'll be back in a flurry
-	{ A,          5 }, // <Continue>
-	{ NOTHING,  325 }, // Cut to different scene (Knock 'em flat!)
-	{ B,          5 },
-	{ NOTHING,   20 },
-	{ A,          5 }, // <Continue> // Camera transition takes place after this
+	// Walk left
+	{ LEFT,     135 },
 	{ NOTHING,   50 },
-	{ B,          5 },
-	{ NOTHING,   20 }, // If you can knock over all 10 pins in one roll, that's a strike
-	{ A,          5 }, // <Continue>
-	{ NOTHING,   15 },
-	{ B,          5 },
-	{ NOTHING,   20 }, // A spare is...
-	{ A,          5 }, // <Continue>
-	{ NOTHING,  100 }, // Well, good luck
-	{ A,          5 }, // <Continue>
-	{ NOTHING,  150 }, // Pondo walks away
 
-	// Pick up Snowball (Or alternatively, run to bail in case of a non-strike)
+	// Walk down
+	{ DOWN,      44 },
+	{ NOTHING,   50 },
+
+	// Talk to her
+	{ A,          5 },
+	{ NOTHING,  200 },
+	{ A,          5 },
+	{ NOTHING,  200 },
+
+	// Up 4 times when arrive at menu
+	{ UP,        5 },
+	{ NOTHING,  15 },
+	{ UP,        5 },
+	{ NOTHING,  15 },
+	{ UP,        5 },
+	{ NOTHING,  15 },
+	{ UP,        5 },
+	{ NOTHING,  20 },
+
+	// Press A to take item
 	{ A,          5 },
 	{ NOTHING,   50 },
-	{ LEFT,      42 },
-	{ UP,        80 },
-	{ THROW,     25 },
+	{ A,          5 },
+	{ NOTHING,  100 },
 
-	// Non-strike alternative flow, cancel bail and rethrow
-	{ NOTHING,   30 },
-	{ B,          5 },
-	{ NOTHING,   20 },
-	{ B,          5 }, // I have to split dialogue (It's nothing)
-	{ NOTHING,   15 },
-	{ B,          5 },
-	{ NOTHING,   20 },
-	{ B,          5 },
-	{ NOTHING,  450 },
-	{ B,          5 }, // Snowly moly... there are rules!
-	{ NOTHING,   20 },
-	{ B,          5 },
-	{ NOTHING,   20 },
-	{ B,          5 }, // Second dialogue
-	{ NOTHING,   20 },
-	{ DOWN,      10 }, // Return to snowball
-	{ NOTHING,   20 },
-	{ A,          5 }, // Pick up snowball, we just aimlessly throw it
+	// Enter Quest
+	{ A,          5 },
 	{ NOTHING,   50 },
-	{ UP,        10 },
-	{ THROW,     25 },
+	{ A,          5 },
+	{ NOTHING,   50 },
 
-	// Back at main flow
-	{ NOTHING,  175 }, // Ater throw wait
-	{ B,          5 },
-	{ NOTHING,   20 },
-	{ B,          5 },
-	{ NOTHING,   20 },
-	{ B,          5 },
-	{ NOTHING,   20 },
-	{ B,          5 },
-	{ NOTHING,   20 },
-	{ B,          5 },
-	{ NOTHING,   20 },
-	{ B,          5 },
-	{ NOTHING,   20 },
-	{ B,          5 },
-	{ NOTHING,   20 },
-	{ B,          5 },
-	{ NOTHING,   20 },
-	{ B,          5 },
-	{ NOTHING,   20 },
-	{ B,          5 },
-	{ NOTHING,   20 },
-	{ B,          5 },
-	{ NOTHING,   20 },
-	{ B,          5 },
-	{ NOTHING,   20 },
-	{ B,          5 },
-	{ NOTHING,   20 }, // To the rewards
-	{ B,          5 },
-	{ NOTHING,   20 },
-	{ B,          5 },
-	{ NOTHING,   20 },
-	{ B,          5 },
-	{ NOTHING,   20 },
-	{ B,          5 },
-	{ NOTHING,   20 },
-	
-	{ B,          5 }, // Wait for 450 cycles by bashing B (Like real players do!)
-	{ NOTHING,   20 },
-	{ B,          5 },
-	{ NOTHING,   20 },
-	{ B,          5 },
-	{ NOTHING,   20 },
-	{ B,          5 },
-	{ NOTHING,   20 },
-	{ B,          5 },
-	{ NOTHING,   20 },
-	{ B,          5 },
-	{ NOTHING,   20 },
-	{ B,          5 },
-	{ NOTHING,   20 },
-	{ B,          5 },
-	{ NOTHING,   20 },
-	{ B,          5 },
-	{ NOTHING,   20 },
-	{ B,          5 },
-	{ NOTHING,   20 },
-	{ B,          5 },
-	{ NOTHING,   20 },
-	{ B,          5 },
-	{ NOTHING,   20 },
-	{ B,          5 },
-	{ NOTHING,   20 },
-	{ B,          5 },
-	{ NOTHING,   20 },
-	{ B,          5 },
-	{ NOTHING,   20 },
-	{ B,          5 },
-	{ NOTHING,   20 },
-	{ B,          5 },
-	{ NOTHING,   20 },
-	{ B,          5 },
-	{ NOTHING,   20 } // Saving, intermission
+
+	// Wait a while
+	{ NOTHING,  200 },
+	{ NOTHING,  200 },
+
+	// Press Plus
+	{ PLUS,       5 },
+	{ NOTHING,   30 },
+	// Press X
+	{ X,          5 },
+	{ NOTHING,   30 },
+	// Press up
+	{ UP,        5 },
+	{ NOTHING,  30 },
+	// Press A
+	{ A,          5 },
+	{ NOTHING,   30 },
+
+	// Wait a while
+	{ NOTHING,  200 },
+	{ NOTHING,  200 },
+	{ NOTHING,  200 },
+
+
+	// Set up thunder spells
+
+	// L
+	{ L,          5 },
+	{ NOTHING,   30 },
+
+	// Down
+	{ DOWN,       5 },
+	{ NOTHING,   30 },
+
+	// A
+	{ A,          5 },
+	{ NOTHING,   30 },
+
+	// A
+	{ A,          5 },
+	{ NOTHING,   30 },
+
+	// A
+	{ A,          5 },
+	{ NOTHING,   30 },
+
+	// Wait
+	{ NOTHING,  100 },
+
+	// L
+	{ L,          5 },
+	{ NOTHING,   30 },
+
+	// Down
+	{ DOWN,       5 },
+	{ NOTHING,   30 },
+
+	// A
+	{ A,          5 },
+	{ NOTHING,   30 },
+
+	// Right
+	// { RIGHT,      5 },
+	// { NOTHING,   30 },
+
+	// A
+	{ A,          5 },
+	{ NOTHING,   30 },
+
+	// A
+	{ A,          5 },
+	{ NOTHING,   30 },
+
+
+
+
+	// Press minus
+	{ MINUS,      5 },
+	{ NOTHING,   30 },
+
+	// Hold R for a while
+	{ R,        500 },
+	{ R,        500 },
+	{ R,        500 },
+	{ R,        500 },
+	{ R,        500 },
+	// { R,        500 },
+
+
+	// Proceed
+
+	// Press A
+	{ A,          5 },
+	{ NOTHING,   30 },
+	{ A,          5 },
+	{ NOTHING,   30 },
+	{ A,          5 },
+	{ NOTHING,   30 },
+	{ A,          5 },
+	{ NOTHING,   30 },
+
+
+	// Wait a while
+	{ NOTHING,  200 },
+	{ NOTHING,  200 },
+	{ NOTHING,  200 },
+
+
+
+	// Press Plus
+	{ PLUS,       5 },
+	{ NOTHING,   30 },
+	// Press X
+	{ X,          5 },
+	{ NOTHING,   30 },
+	// Press up
+	{ UP,        5 },
+	{ NOTHING,  30 },
+	// Press A
+	{ A,          5 },
+	{ NOTHING,   30 },
+
+
+
+	// Wait a while
+	{ NOTHING,  200 },
+	{ NOTHING,  200 },
+	{ NOTHING,  200 },
+
+
+
+	// Go back to save point
+	// up
+	{ UP,        26 },
+	{ NOTHING,   50 },
+	// left
+	{ LEFT,      3 },
+	{ NOTHING,   50 },
+
+
+	// Wait before looping
+	{ NOTHING,   50 },
+
+
 };
 
 // Main entry point.
@@ -410,6 +469,14 @@ void GetNextReport(USB_JoystickReport_Input_t* const ReportData) {
 					ReportData->LX = STICK_MAX;				
 					break;
 
+				case PLUS:
+					ReportData->Button |= SWITCH_PLUS;
+					break;
+
+				case MINUS:
+					ReportData->Button |= SWITCH_MINUS;
+					break;
+
 				case A:
 					ReportData->Button |= SWITCH_A;
 					break;
@@ -418,8 +485,20 @@ void GetNextReport(USB_JoystickReport_Input_t* const ReportData) {
 					ReportData->Button |= SWITCH_B;
 					break;
 
+				case X:
+					ReportData->Button |= SWITCH_X;
+					break;
+
+				case Y:
+					ReportData->Button |= SWITCH_Y;
+					break;
+
 				case R:
 					ReportData->Button |= SWITCH_R;
+					break;
+
+				case L:
+					ReportData->Button |= SWITCH_L;
 					break;
 
 				case THROW:
