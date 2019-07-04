@@ -1,4 +1,9 @@
+# World of Final Fantasy XP Auto-Grinder
 
+
+
+
+---
 
 LUFA has been included as a git submodule, so cloning the repo like this:
 
