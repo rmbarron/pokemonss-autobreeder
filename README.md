@@ -1,7 +1,8 @@
 # World of Final Fantasy XP Auto-Grinder
 
+A fork of a fork of a fork, modified to grind XP in a specific location in World of Final Fantasy, to level my character past level 60, so I can max out a few things in the game.
 
-
+See previous projects for some more detailed information / setup process.
 
 ---
 
