@@ -49,27 +49,28 @@ static const command step[] = {
 	// Setup controller
 	{ NOTHING,  250 },
 	{ TRIGGERS,   5 },
-	{ NOTHING,  140 },
+	{ NOTHING,  100 },
 	{ TRIGGERS,   5 },
-	{ NOTHING,  140 },
+	{ NOTHING,  100 },
 	{ A,          5 },
-	{ NOTHING,  160 },
+	{ NOTHING,   50 },
 
 	// Save
-	{ NOTHING,   40 },
+	{ A,          5 },
+	{ NOTHING,  100 },
 	{ A,          5 },
 	{ NOTHING,  120 },
 	{ A,          5 },
-	{ NOTHING,  150 },
-	{ A,          5 },
+
+	// Walk to the girl
 
 	// Walk left
 	{ LEFT,     135 },
-	{ NOTHING,   50 },
+	{ NOTHING,   25 },
 
 	// Walk down
 	{ DOWN,      44 },
-	{ NOTHING,   50 },
+	{ NOTHING,   25 },
 
 	// Talk to her
 	{ A,          5 },
@@ -78,31 +79,32 @@ static const command step[] = {
 	{ NOTHING,  200 },
 
 	// Up 4 times when arrive at menu
-	{ UP,        5 },
-	{ NOTHING,  15 },
-	{ UP,        5 },
-	{ NOTHING,  15 },
-	{ UP,        5 },
-	{ NOTHING,  15 },
-	{ UP,        5 },
-	{ NOTHING,  20 },
+	{ UP,         5 },
+	{ NOTHING,   10 },
+	{ UP,         5 },
+	{ NOTHING,   10 },
+	{ UP,         5 },
+	{ NOTHING,   10 },
+	{ UP,         5 },
+	{ NOTHING,   10 },
 
 	// Press A to take item
 	{ A,          5 },
-	{ NOTHING,   50 },
+	{ NOTHING,   20 },
 	{ A,          5 },
-	{ NOTHING,  100 },
+	{ NOTHING,   20 },
 
 	// Enter Quest
 	{ A,          5 },
-	{ NOTHING,   50 },
+	{ NOTHING,   20 },
 	{ A,          5 },
-	{ NOTHING,   50 },
-
+	{ NOTHING,   20 },
 
 	// Wait a while
 	{ NOTHING,  200 },
 	{ NOTHING,  200 },
+
+	// Skip scene
 
 	// Press Plus
 	{ PLUS,       5 },
@@ -119,76 +121,69 @@ static const command step[] = {
 
 	// Wait a while
 	{ NOTHING,  200 },
-	{ NOTHING,  200 },
-	{ NOTHING,  200 },
+	{ NOTHING,  130 },
 
+	// Fast forward a little
+	{ R,         50 },
 
-	// Set up thunder spells
+	// Set up thunder & fire spells
+
+	// First spell
 
 	// L
 	{ L,          5 },
-	{ NOTHING,   30 },
-
+	{ NOTHING,   15 },
 	// Down
 	{ DOWN,       5 },
-	{ NOTHING,   30 },
-
+	{ NOTHING,   15 },
 	// A
 	{ A,          5 },
-	{ NOTHING,   30 },
-
+	{ NOTHING,   15 },
 	// A
 	{ A,          5 },
-	{ NOTHING,   30 },
-
+	{ NOTHING,   15 },
 	// A
 	{ A,          5 },
-	{ NOTHING,   30 },
+	{ NOTHING,   20 },
 
 	// Wait
-	{ NOTHING,  100 },
+	{ NOTHING,   10 },
+
+	// Second spell
 
 	// L
 	{ L,          5 },
-	{ NOTHING,   30 },
-
+	{ NOTHING,   15 },
 	// Down
 	{ DOWN,       5 },
-	{ NOTHING,   30 },
-
+	{ NOTHING,   15 },
 	// A
 	{ A,          5 },
-	{ NOTHING,   30 },
-
-	// Right
-	// { RIGHT,      5 },
-	// { NOTHING,   30 },
-
+	{ NOTHING,   15 },
 	// A
 	{ A,          5 },
-	{ NOTHING,   30 },
-
+	{ NOTHING,   15 },
 	// A
 	{ A,          5 },
-	{ NOTHING,   30 },
+	{ NOTHING,   10 },
 
-
-
+	// Auto battle
 
 	// Press minus
 	{ MINUS,      5 },
-	{ NOTHING,   30 },
+	{ NOTHING,   10 },
 
 	// Hold R for a while
 	{ R,        500 },
 	{ R,        500 },
-	{ R,        500 },
-	{ R,        500 },
-	{ R,        500 },
+	{ R,        420 },
+
+	// If level 50-70, you might need more time in battle
+	// { R,        500 },
+	// { R,        500 },
 	// { R,        500 },
 
-
-	// Proceed
+	// Proceed past battle
 
 	// Press A
 	{ A,          5 },
@@ -200,49 +195,41 @@ static const command step[] = {
 	{ A,          5 },
 	{ NOTHING,   30 },
 
-
 	// Wait a while
 	{ NOTHING,  200 },
 	{ NOTHING,  200 },
-	{ NOTHING,  200 },
+	{ NOTHING,  140 },
 
-
+	// Skip scene
 
 	// Press Plus
 	{ PLUS,       5 },
-	{ NOTHING,   30 },
+	{ NOTHING,   15 },
 	// Press X
 	{ X,          5 },
-	{ NOTHING,   30 },
+	{ NOTHING,   15 },
 	// Press up
-	{ UP,        5 },
-	{ NOTHING,  30 },
+	{ UP,         5 },
+	{ NOTHING,   15 },
 	// Press A
 	{ A,          5 },
-	{ NOTHING,   30 },
-
-
+	{ NOTHING,   20 },
 
 	// Wait a while
 	{ NOTHING,  200 },
 	{ NOTHING,  200 },
-	{ NOTHING,  200 },
-
-
+	{ NOTHING,  140 },
 
 	// Go back to save point
 	// up
 	{ UP,        26 },
 	{ NOTHING,   50 },
 	// left
-	{ LEFT,      3 },
+	{ LEFT,       3 },
 	{ NOTHING,   50 },
-
 
 	// Wait before looping
-	{ NOTHING,   50 },
-
-
+	// { NOTHING,   50 },
 };
 
 // Main entry point.
@@ -403,32 +390,6 @@ void GetNextReport(USB_JoystickReport_Input_t* const ReportData) {
 			state = BREATHE;
 			break;
 
-		// case SYNC_CONTROLLER:
-		// 	if (report_count > 550)
-		// 	{
-		// 		report_count = 0;
-		// 		state = SYNC_POSITION;
-		// 	}
-		// 	else if (report_count == 250 || report_count == 300 || report_count == 325)
-		// 	{
-		// 		ReportData->Button |= SWITCH_L | SWITCH_R;
-		// 	}
-		// 	else if (report_count == 350 || report_count == 375 || report_count == 400)
-		// 	{
-		// 		ReportData->Button |= SWITCH_A;
-		// 	}
-		// 	else
-		// 	{
-		// 		ReportData->Button = 0;
-		// 		ReportData->LX = STICK_CENTER;
-		// 		ReportData->LY = STICK_CENTER;
-		// 		ReportData->RX = STICK_CENTER;
-		// 		ReportData->RY = STICK_CENTER;
-		// 		ReportData->HAT = HAT_CENTER;
-		// 	}
-		// 	report_count++;
-		// 	break;
-
 		case SYNC_POSITION:
 			bufindex = 0;
 
@@ -544,10 +505,6 @@ void GetNextReport(USB_JoystickReport_Input_t* const ReportData) {
 				ReportData->RY = STICK_CENTER;
 				ReportData->HAT = HAT_CENTER;
 
-
-				// state = DONE;
-//				state = BREATHE;
-
 			}
 
 			break;
@@ -566,10 +523,6 @@ void GetNextReport(USB_JoystickReport_Input_t* const ReportData) {
 			return;
 	}
 
-	// // Inking
-	// if (state != SYNC_CONTROLLER && state != SYNC_POSITION)
-	// 	if (pgm_read_byte(&(image_data[(xpos / 8) + (ypos * 40)])) & 1 << (xpos % 8))
-	// 		ReportData->Button |= SWITCH_A;
 
 	// Prepare to echo this report
 	memcpy(&last_report, ReportData, sizeof(USB_JoystickReport_Input_t));
