@@ -125,6 +125,7 @@ static const command step[] = {
 
 	// Fast forward a little
 	{ R,         50 },
+	{ NOTHING,   15 },
 
 	// Set up thunder & fire spells
 
@@ -176,7 +177,7 @@ static const command step[] = {
 	// Hold R for a while
 	{ R,        500 },
 	{ R,        500 },
-	{ R,        420 },
+	{ R,        410 },
 
 	// If level 50-70, you might need more time in battle
 	// { R,        500 },
@@ -198,7 +199,7 @@ static const command step[] = {
 	// Wait a while
 	{ NOTHING,  200 },
 	{ NOTHING,  200 },
-	{ NOTHING,  140 },
+	{ NOTHING,  120 },
 
 	// Skip scene
 
@@ -218,7 +219,7 @@ static const command step[] = {
 	// Wait a while
 	{ NOTHING,  200 },
 	{ NOTHING,  200 },
-	{ NOTHING,  140 },
+	{ NOTHING,  100 },
 
 	// Go back to save point
 	// up
