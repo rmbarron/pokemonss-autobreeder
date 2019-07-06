@@ -177,7 +177,7 @@ static const command step[] = {
 	// Hold R for a while
 	{ R,        500 },
 	{ R,        500 },
-	{ R,        410 },
+	{ R,        380 },
 
 	// If level 50-70, you might need more time in battle
 	// { R,        500 },
@@ -199,7 +199,7 @@ static const command step[] = {
 	// Wait a while
 	{ NOTHING,  200 },
 	{ NOTHING,  200 },
-	{ NOTHING,  120 },
+	{ NOTHING,  100 },
 
 	// Skip scene
 
@@ -219,7 +219,7 @@ static const command step[] = {
 	// Wait a while
 	{ NOTHING,  200 },
 	{ NOTHING,  200 },
-	{ NOTHING,  100 },
+	{ NOTHING,  90 },
 
 	// Go back to save point
 	// up
