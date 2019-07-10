@@ -20,6 +20,8 @@ these buttons for our use.
 
 // make && sudo dfu-programmer atmega16u2 erase && sudo dfu-programmer atmega16u2 flash Joystick.hex
 
+// make && ./teensy_loader_cli -mmcu=atmega32u4 -w Joystick.hex
+
 #include "Joystick.h"
 
 typedef enum {
@@ -93,6 +95,12 @@ static const command step[] = {
 	{ NOTHING,   10 },
 
 	// After the extra quest is unlocked, it's 6
+	{ UP,         5 },
+	{ NOTHING,   10 },
+
+	// In the Post-game, it's 8
+	{ UP,         5 },
+	{ NOTHING,   10 },
 	{ UP,         5 },
 	{ NOTHING,   10 },
 
