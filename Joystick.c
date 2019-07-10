@@ -92,6 +92,10 @@ static const command step[] = {
 	{ UP,         5 },
 	{ NOTHING,   10 },
 
+	// After the extra quest is unlocked, it's 6
+	{ UP,         5 },
+	{ NOTHING,   10 },
+
 	// Press A to take item
 	{ A,          5 },
 	{ NOTHING,   20 },
