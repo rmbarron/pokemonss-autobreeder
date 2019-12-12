@@ -26,6 +26,7 @@ these buttons for our use.
 
 typedef enum {
 	UP,
+	UPRIGHT,
 	DOWN,
 	LEFT,
 	RIGHT,
@@ -57,196 +58,63 @@ static const command step[] = {
 	{ A,          5 },
 	{ NOTHING,   50 },
 
-	// Save
-	{ A,          5 },
-	{ NOTHING,  100 },
-	{ A,          5 },
-	{ NOTHING,  120 },
-	{ A,          5 },
+	{ UPRIGHT,    140},
+	{ NOTHING,   10},
 
-	// Walk to the girl
+	//One iteration of walking
+	{ LEFT,     80},
+	{ NOTHING,  5},
+	{ RIGHT,    70},
+	{ NOTHING,  5},
+	{ UPRIGHT,  40},
+	{ NOTHING,  10},
 
-	// Walk left
-	{ LEFT,     135 },
-	{ NOTHING,   25 },
+	{ LEFT,     80},
+	{ NOTHING,  5},
+	{ RIGHT,    70},
+	{ NOTHING,  5},
+	{ UPRIGHT,  40},
+	{ NOTHING,  10},
 
-	// Walk down
-	{ DOWN,      44 },
-	{ NOTHING,   25 },
+	{ LEFT,     80},
+	{ NOTHING,  5},
+	{ RIGHT,    70},
+	{ NOTHING,  5},
+	{ UPRIGHT,  40},
+	{ NOTHING,  10},
 
-	// Talk to her
-	{ A,          5 },
-	{ NOTHING,  200 },
-	{ A,          5 },
-	{ NOTHING,  200 },
+	{ LEFT,     80},
+	{ NOTHING,  5},
+	{ RIGHT,    70},
+	{ NOTHING,  5},
+	{ UPRIGHT,  40},
+	{ NOTHING,  10},
 
-	// Up 4 times when arrive at menu
-	{ UP,         5 },
-	{ NOTHING,   10 },
-	{ UP,         5 },
-	{ NOTHING,   10 },
-	{ UP,         5 },
-	{ NOTHING,   10 },
-	{ UP,         5 },
-	{ NOTHING,   10 },
-
-	// After the extra quest is unlocked, it's 5
-	{ UP,         5 },
-	{ NOTHING,   10 },
-
-	// After the extra quest is unlocked, it's 6
-	{ UP,         5 },
-	{ NOTHING,   10 },
-
-	// In the Post-game, it's 8
-	{ UP,         5 },
-	{ NOTHING,   10 },
-	{ UP,         5 },
-	{ NOTHING,   10 },
-
-	// Press A to take item
-	{ A,          5 },
-	{ NOTHING,   20 },
-	{ A,          5 },
-	{ NOTHING,   20 },
-
-	// Enter Quest
-	{ A,          5 },
-	{ NOTHING,   20 },
-	{ A,          5 },
-	{ NOTHING,   20 },
-
-	// Wait a while
-	{ NOTHING,  200 },
-	{ NOTHING,  200 },
-
-	// Skip scene
-
-	// Press Plus
-	{ PLUS,       5 },
-	{ NOTHING,   30 },
-	// Press X
-	{ X,          5 },
-	{ NOTHING,   30 },
-	// Press up
-	{ UP,        5 },
-	{ NOTHING,  30 },
-	// Press A
-	{ A,          5 },
-	{ NOTHING,   30 },
-
-	// Wait a while
-	{ NOTHING,  200 },
-	{ NOTHING,  130 },
-
-	// Fast forward a little
-	{ R,         50 },
-	{ NOTHING,   15 },
-
-	// Set up thunder & fire spells
-
-	// First spell
-
-	// L
-	{ L,          5 },
-	{ NOTHING,   15 },
-	// Down
-	{ DOWN,       5 },
-	{ NOTHING,   15 },
-	// A
-	{ A,          5 },
-	{ NOTHING,   15 },
-	// A
-	{ A,          5 },
-	{ NOTHING,   15 },
-	// A
-	{ A,          5 },
-	{ NOTHING,   20 },
-
-	// Wait
-	{ NOTHING,   10 },
-
-	// Second spell
-
-	// L
-	{ L,          5 },
-	{ NOTHING,   15 },
-	// Down
-	{ DOWN,       5 },
-	{ NOTHING,   15 },
-	// A
-	{ A,          5 },
-	{ NOTHING,   15 },
-	// A
-	{ A,          5 },
-	{ NOTHING,   15 },
-	// A
-	{ A,          5 },
-	{ NOTHING,   10 },
-
-	// Auto battle
-
-	// Press minus
-	{ MINUS,      5 },
-	{ NOTHING,   10 },
-
-	// Hold R for a while
-	{ R,        500 },
-	{ R,        500 },
-	{ R,        380 },
-
-	// If level 50-70, you might need more time in battle
-	// { R,        500 },
-	// { R,        500 },
-	// { R,        500 },
-
-	// Proceed past battle
-
-	// Press A
-	{ A,          5 },
-	{ NOTHING,   30 },
-	{ A,          5 },
-	{ NOTHING,   30 },
-	{ A,          5 },
-	{ NOTHING,   30 },
-	{ A,          5 },
-	{ NOTHING,   30 },
-
-	// Wait a while
-	{ NOTHING,  200 },
-	{ NOTHING,  200 },
-	{ NOTHING,  100 },
-
-	// Skip scene
-
-	// Press Plus
-	{ PLUS,       5 },
-	{ NOTHING,   15 },
-	// Press X
-	{ X,          5 },
-	{ NOTHING,   15 },
-	// Press up
-	{ UP,         5 },
-	{ NOTHING,   15 },
-	// Press A
-	{ A,          5 },
-	{ NOTHING,   20 },
-
-	// Wait a while
-	{ NOTHING,  200 },
-	{ NOTHING,  200 },
-	{ NOTHING,  90 },
-
-	// Go back to save point
-	// up
-	{ UP,        26 },
-	{ NOTHING,   50 },
-	// left
-	{ LEFT,       3 },
-	{ NOTHING,   50 },
-
-	// Wait before looping
-	// { NOTHING,   50 },
+	//Check For Egg 
+	{A, 5},
+	{NOTHING, 40},
+	{A, 5},
+	{NOTHING, 50},
+	{B, 15},
+	{NOTHING, 30},
+	{B, 15},
+	{NOTHING, 5},
+	{B, 15},
+	{NOTHING, 5},
+	{B, 15},
+	{NOTHING, 5},
+	{B, 15},
+	{NOTHING, 5},
+	{B, 15},
+	{NOTHING, 5},
+	{B, 15},
+	{NOTHING, 5},
+	{B, 15},
+	{NOTHING, 5},
+	{B, 15},
+	{NOTHING, 5},
+	{B, 15},
+	{NOTHING, 5}
 };
 
 // Main entry point.
@@ -434,7 +302,11 @@ void GetNextReport(USB_JoystickReport_Input_t* const ReportData) {
 				case UP:
 					ReportData->LY = STICK_MIN;				
 					break;
-
+				case UPRIGHT:
+					ReportData->LY = STICK_MIN;
+					ReportData->LX = STICK_MAX;				
+					break;
+				
 				case LEFT:
 					ReportData->LX = STICK_MIN;				
 					break;
@@ -511,7 +383,7 @@ void GetNextReport(USB_JoystickReport_Input_t* const ReportData) {
 
 				// state = CLEANUP;
 
-				bufindex = 7;
+				bufindex = 9;
 				duration_count = 0;
 
 				state = BREATHE;
