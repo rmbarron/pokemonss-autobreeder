@@ -23,32 +23,27 @@ these buttons for our use.
 // make && ./teensy_loader_cli -mmcu=atmega32u4 -w Joystick.hex
 
 #include "Joystick.h"
+#include <time.h>
+#include <stdio.h>
+
+#define ECHOES 2
+int echoes = 0;
+USB_JoystickReport_Input_t last_report;
+
+int report_count = 0;
+int xpos = 0;
+int ypos = 0;
+int duration_count = 0;
+int portsval = 0;
 
 typedef enum {
-	UP,
-	UPRIGHT,
-	DOWN,
-	LEFT,
-	RIGHT,
-	X,
-	Y,
-	A,
-	B,
-	L,
-	R,
-	THROW,
-	NOTHING,
-	PLUS,
-	MINUS,
-	TRIGGERS
-} Buttons_t;
+	COLLECTING, 
+	HATCHING 
+} Modes; 
 
-typedef struct {
-	Buttons_t button;
-	uint16_t duration;
-} command; 
+Modes mode = COLLECTING; 
 
-static const command step[] = {
+static const command sync[] = {
 	// Setup controller
 	{ NOTHING,  250 },
 	{ TRIGGERS,   5 },
@@ -57,64 +52,15 @@ static const command step[] = {
 	{ NOTHING,  100 },
 	{ A,          5 },
 	{ NOTHING,   50 },
+};
 
-	{ UPRIGHT,    140},
-	{ NOTHING,   10},
-
-	//One iteration of walking
+static const command run[] = {
 	{ LEFT,     80},
 	{ NOTHING,  5},
 	{ RIGHT,    70},
 	{ NOTHING,  5},
 	{ UPRIGHT,  40},
-	{ NOTHING,  10},
-
-	{ LEFT,     80},
-	{ NOTHING,  5},
-	{ RIGHT,    70},
-	{ NOTHING,  5},
-	{ UPRIGHT,  40},
-	{ NOTHING,  10},
-
-	{ LEFT,     80},
-	{ NOTHING,  5},
-	{ RIGHT,    70},
-	{ NOTHING,  5},
-	{ UPRIGHT,  40},
-	{ NOTHING,  10},
-
-	{ LEFT,     80},
-	{ NOTHING,  5},
-	{ RIGHT,    70},
-	{ NOTHING,  5},
-	{ UPRIGHT,  40},
-	{ NOTHING,  10},
-
-	//Check For Egg 
-	{A, 5},
-	{NOTHING, 40},
-	{A, 5},
-	{NOTHING, 50},
-	{B, 15},
-	{NOTHING, 30},
-	{B, 15},
-	{NOTHING, 5},
-	{B, 15},
-	{NOTHING, 5},
-	{B, 15},
-	{NOTHING, 5},
-	{B, 15},
-	{NOTHING, 5},
-	{B, 15},
-	{NOTHING, 5},
-	{B, 15},
-	{NOTHING, 5},
-	{B, 15},
-	{NOTHING, 5},
-	{B, 15},
-	{NOTHING, 5},
-	{B, 15},
-	{NOTHING, 5}
+	{ NOTHING,  10}
 };
 
 // Main entry point.
@@ -123,14 +69,68 @@ int main(void) {
 	SetupHardware();
 	// We'll then enable global interrupts for our use.
 	GlobalInterruptEnable();
-	// Once that's done, we'll enter an infinite loop.
-	for (;;)
-	{
-		// We need to run our task to process and deliver data for our IN and OUT endpoints.
-		HID_Task();
-		// We also need to run the main USB management task.
-		USB_USBTask();
+	bool setup = true; 
+	for(;;) {
+		if (setup) {
+			command temp = {TRIGGERS, 50};
+			runCommand(temp);
+			command temp2 = {NOTHING, 5};
+			runCommand(temp2);
+			command temp3 = {A, 50};
+			runCommand(temp3);
+			setup = false; 
+			command temp4 = { UPRIGHT,    140};
+			runCommand(temp4);
+		}
+		if (mode == COLLECTING) {
+			//Walk left to right 
+			int a; 
+			for (a = 0; a < 3; a ++) {
+				runCommand(run[0]);
+				runCommand(run[1]);
+				runCommand(run[2]);
+				runCommand(run[3]);
+				runCommand(run[4]);
+				runCommand(run[5]);
+			}
+
+			//Talk to day care lady
+			command a1 = {A, 5};
+			runCommand(a1);
+			command a2 = {NOTHING, 40};
+			runCommand(a2);
+			command a3 = {A, 5};
+			runCommand(a3);
+			command a4 = {NOTHING, 50};
+			runCommand(a4);
+
+			//MASH B
+			int b; 
+			for (b = 0; b < 13; b++) {
+				command b1 = {B, 15};
+				runCommand(b1);
+				command b2 = {NOTHING, 5};
+				runCommand(b2);
+			}
+		}
 	}
+}
+
+void runCommandList(command moves[]) {
+	int a = 0; 
+	for (a = 0; a < (sizeof(moves) / sizeof(moves[0])); a++) {
+		runCommand(moves[a]);
+	}
+}
+void runCommand(command move) {
+		duration_count = 0; 
+		while(duration_count < move.duration) {
+			// We need to run our task to process and deliver data for our IN and OUT endpoints.
+			HID_Task(move);
+			// We also need to run the main USB management task.
+			USB_USBTask();
+		}
+		
 }
 
 // Configures hardware and peripherals, such as the USB peripherals.
@@ -186,7 +186,7 @@ void EVENT_USB_Device_ControlRequest(void) {
 }
 
 // Process and deliver data from IN and OUT endpoints.
-void HID_Task(void) {
+void HID_Task(command move) {
 	// If the device isn't connected and properly configured, we can't do anything here.
 	if (USB_DeviceState != DEVICE_STATE_Configured)
 		return;
@@ -219,7 +219,7 @@ void HID_Task(void) {
 		// We'll create an empty report.
 		USB_JoystickReport_Input_t JoystickInputData;
 		// We'll then populate this report with what we want to send to the host.
-		GetNextReport(&JoystickInputData);
+		GetNextReport(&JoystickInputData, move);
 		// Once populated, we can output this data to the host. We do this by first writing the data to the control stream.
 		while(Endpoint_Write_Stream_LE(&JoystickInputData, sizeof(JoystickInputData), NULL) != ENDPOINT_RWSTREAM_NoError);
 		// We then send an IN packet on this endpoint.
@@ -235,21 +235,10 @@ typedef enum {
 	CLEANUP,
 	DONE
 } State_t;
-State_t state = SYNC_CONTROLLER;
-
-#define ECHOES 2
-int echoes = 0;
-USB_JoystickReport_Input_t last_report;
-
-int report_count = 0;
-int xpos = 0;
-int ypos = 0;
-int bufindex = 0;
-int duration_count = 0;
-int portsval = 0;
+State_t state = SYNC_CONTROLLER;Endpoint_Write_Stream;
 
 // Prepare the next report for the host.
-void GetNextReport(USB_JoystickReport_Input_t* const ReportData) {
+void GetNextReport(USB_JoystickReport_Input_t* const ReportData, command move) {
 
 	// Prepare an empty report
 	memset(ReportData, 0, sizeof(USB_JoystickReport_Input_t));
@@ -270,15 +259,11 @@ void GetNextReport(USB_JoystickReport_Input_t* const ReportData) {
 	// States and moves management
 	switch (state)
 	{
-
 		case SYNC_CONTROLLER:
 			state = BREATHE;
 			break;
 
 		case SYNC_POSITION:
-			bufindex = 0;
-
-
 			ReportData->Button = 0;
 			ReportData->LX = STICK_CENTER;
 			ReportData->LY = STICK_CENTER;
@@ -296,7 +281,7 @@ void GetNextReport(USB_JoystickReport_Input_t* const ReportData) {
 
 		case PROCESS:
 
-			switch (step[bufindex].button)
+			switch (move.button)
 			{
 
 				case UP:
@@ -370,32 +355,6 @@ void GetNextReport(USB_JoystickReport_Input_t* const ReportData) {
 			}
 
 			duration_count++;
-
-			if (duration_count > step[bufindex].duration)
-			{
-				bufindex++;
-				duration_count = 0;				
-			}
-
-
-			if (bufindex > (int)( sizeof(step) / sizeof(step[0])) - 1)
-			{
-
-				// state = CLEANUP;
-
-				bufindex = 9;
-				duration_count = 0;
-
-				state = BREATHE;
-
-				ReportData->LX = STICK_CENTER;
-				ReportData->LY = STICK_CENTER;
-				ReportData->RX = STICK_CENTER;
-				ReportData->RY = STICK_CENTER;
-				ReportData->HAT = HAT_CENTER;
-
-			}
-
 			break;
 
 		case CLEANUP:
