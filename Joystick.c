@@ -41,7 +41,7 @@ typedef enum {
 	HATCHING 
 } Modes; 
 
-Modes mode = COLLECTING; 
+Modes mode = HATCHING; 
 
 static const command sync[] = {
 	// Setup controller
@@ -63,6 +63,62 @@ static const command run[] = {
 	{ NOTHING,  10}
 };
 
+// //Hatching: 
+static const command openPC[] = {
+	{X, 5},
+	{NOTHING, 45},
+	{A, 5}, 
+	{NOTHING, 70},
+	{R, 5}, 
+	{NOTHING, 70},
+	{Y, 5}, 
+	{NOTHING, 5},
+	{Y, 5}, 
+	{NOTHING, 5}
+};
+
+//Note move to the correct column first
+static const command grabColumn[] = {
+	{A, 5}, 
+	{NOTHING, 5},
+	{DOWN, 5}, 
+	{NOTHING, 5},
+	{DOWN, 5},
+	{NOTHING, 5},
+	{DOWN, 5}, 
+	{NOTHING, 5},
+	{DOWN, 5},
+	{NOTHING, 5},
+	{A, 5},
+	{NOTHING, 5}
+};
+//Allows drops column after 
+
+static const command spin[] = {
+	{SPIN, 2800}
+};
+
+//move left a certain number of times first if needed 
+static const command movePokemon[] = {
+	//Move left
+	{LEFT, 5},
+	{NOTHING, 5},
+
+	//Move right 
+	{RIGHT, 5},
+	{NOTHING, 5}, 
+
+	//Places eggs down 
+	{DOWN, 5},
+	{NOTHING, 5},
+	{A, 5},
+	{NOTHING, 5}
+};
+
+static const command putEggsAway[] = {
+
+};
+
 // Main entry point.
 int main(void) {
 	// We'll start by performing hardware and peripheral setup.
@@ -79,8 +135,10 @@ int main(void) {
 			command temp3 = {A, 50};
 			runCommand(temp3);
 			setup = false; 
-			command temp4 = { UPRIGHT,    140};
-			runCommand(temp4);
+			if (mode == COLLECTING) {
+				command temp4 = { UPRIGHT,    140};
+				runCommand(temp4);
+			}
 		}
 		if (mode == COLLECTING) {
 			//Walk left to right 
@@ -107,6 +165,164 @@ int main(void) {
 			//MASH B
 			int b; 
 			for (b = 0; b < 13; b++) {
+				command b1 = {B, 15};
+				runCommand(b1);
+				command b2 = {NOTHING, 5};
+				runCommand(b2);
+			}
+		}
+
+		if (mode == HATCHING) {
+			int numCol;
+			for (numCol = 0; numCol < 6; numCol++) {
+				//open pc 
+				runCommand(openPC[0]); 
+				runCommand(openPC[1]); 
+				runCommand(openPC[2]); 
+				runCommand(openPC[3]); 
+				runCommand(openPC[4]); 
+				runCommand(openPC[5]); 
+				runCommand(openPC[6]);
+				runCommand(openPC[7]); 
+				runCommand(openPC[8]);
+				runCommand(openPC[9]);   
+				if (numCol > 0) {
+					//put pokemon away 
+					runCommand(movePokemon[0]);
+					runCommand(movePokemon[1]);
+					runCommand(movePokemon[4]);
+					runCommand(movePokemon[5]); 
+
+					runCommand(grabColumn[0]);
+					runCommand(grabColumn[1]);
+					runCommand(grabColumn[2]);
+					runCommand(grabColumn[3]);
+					runCommand(grabColumn[4]);
+					runCommand(grabColumn[5]);
+					runCommand(grabColumn[6]);
+					runCommand(grabColumn[7]);
+					runCommand(grabColumn[8]);
+					runCommand(grabColumn[9]);
+					runCommand(grabColumn[10]);
+					runCommand(grabColumn[11]);
+					
+					//move to appropriate column 
+					int currcol; 
+					for (currcol = 0; currcol < numCol; currcol++) {
+						runCommand(movePokemon[2]);
+						runCommand(movePokemon[3]);
+					}
+					command up = {UP, 5};
+					command up2 = {NOTHING, 5};
+					runCommand(up);
+					runCommand(up2);
+					runCommand(grabColumn[0]);
+					runCommand(grabColumn[1]);
+				
+					//Move to the right by 1 
+					runCommand(movePokemon[2]);
+					runCommand(movePokemon[3]);
+				}
+				//Grab first set of eggs 
+				runCommand(grabColumn[0]);
+				runCommand(grabColumn[1]);
+				runCommand(grabColumn[2]);
+				runCommand(grabColumn[3]);
+				runCommand(grabColumn[4]);
+				runCommand(grabColumn[5]);
+				runCommand(grabColumn[6]);
+				runCommand(grabColumn[7]);
+				runCommand(grabColumn[8]);
+				runCommand(grabColumn[9]);
+				runCommand(grabColumn[10]);
+				runCommand(grabColumn[11]);
+
+				//Move them to party 
+				int currcol2; 
+				for (currcol2 = 0; currcol2 <= numCol; currcol2++) {
+					runCommand(movePokemon[0]);
+					runCommand(movePokemon[1]);
+				}
+				runCommand(movePokemon[4]);
+				runCommand(movePokemon[5]);
+				runCommand(movePokemon[6]);
+				runCommand(movePokemon[7]);
+
+				//Mash B
+				int b; 
+				for (b = 0; b < 18; b++) {
+					command b1 = {B, 15};
+					runCommand(b1);
+					command b2 = {NOTHING, 5};
+					runCommand(b2);
+				}
+
+				//Hatch eggs 
+				runCommand(spin[0]);
+				int numEggs;
+				for (numEggs = 0; numEggs < 5; numEggs++) {
+					int c; 
+					for (c = 0; c < 37; c++) {
+						command b1 = {B, 15};
+						runCommand(b1);
+						command b2 = {NOTHING, 5};
+						runCommand(b2);
+					}
+					command shortspin = {SPIN, 20}; 
+					runCommand(shortspin);
+				}
+			}
+			//open pc 
+			runCommand(openPC[0]); 
+			runCommand(openPC[1]); 
+			runCommand(openPC[2]); 
+			runCommand(openPC[3]); 
+			runCommand(openPC[4]); 
+			runCommand(openPC[5]); 
+			runCommand(openPC[6]);
+			runCommand(openPC[7]); 
+			runCommand(openPC[8]);
+			runCommand(openPC[9]);
+
+			//put pokemon away 
+			runCommand(movePokemon[0]);
+			runCommand(movePokemon[1]);
+			runCommand(movePokemon[4]);
+			runCommand(movePokemon[5]); 
+
+			runCommand(grabColumn[0]);
+			runCommand(grabColumn[1]);
+			runCommand(grabColumn[2]);
+			runCommand(grabColumn[3]);
+			runCommand(grabColumn[4]);
+			runCommand(grabColumn[5]);
+			runCommand(grabColumn[6]);
+			runCommand(grabColumn[7]);
+			runCommand(grabColumn[8]);
+			runCommand(grabColumn[9]);
+			runCommand(grabColumn[10]);
+			runCommand(grabColumn[11]);
+			
+			//move to appropriate column 
+			int currcol; 
+			for (currcol = 0; currcol < 6; currcol++) {
+				runCommand(movePokemon[2]);
+				runCommand(movePokemon[3]);
+			}
+			command up = {UP, 5};
+			command up2 = {NOTHING, 5};
+			runCommand(up);
+			runCommand(up2);
+			runCommand(grabColumn[0]);
+			runCommand(grabColumn[1]);
+		
+			runCommand(up);
+			runCommand(up2);
+			runCommand(movePokemon[2]);
+			runCommand(movePokemon[3]);
+
+			int d; 
+			for (d = 0; d < 20; d++) {
 				command b1 = {B, 15};
 				runCommand(b1);
 				command b2 = {NOTHING, 5};
@@ -344,6 +560,11 @@ void GetNextReport(USB_JoystickReport_Input_t* const ReportData, command move) {
 				case TRIGGERS:
 					ReportData->Button |= SWITCH_L | SWITCH_R;
 					break;
+
+				case SPIN: 
+					ReportData->LX = STICK_MIN;		
+					ReportData->RX = STICK_MAX;
+					break; 		
 
 				default:
 					ReportData->LX = STICK_CENTER;

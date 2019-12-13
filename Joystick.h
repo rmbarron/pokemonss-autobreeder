@@ -123,7 +123,8 @@ typedef enum {
 	NOTHING,
 	PLUS,
 	MINUS,
-	TRIGGERS
+	TRIGGERS, 
+	SPIN 
 } Buttons_t;
 
 typedef struct {
