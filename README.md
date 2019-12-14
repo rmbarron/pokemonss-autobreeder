@@ -16,6 +16,10 @@ A fork of a fork of a fork of a fork, modified to grind automate the breeding pr
 3. Set the Arduino into DFU mode: 
     - https://www.arduino.cc/en/Hacking/DFUProgramming8U2 
 
+4. Select the mode that you would like the arduino to run in by changing the mode variable which can be found in [Joystick.c](https://github.com/shinyquagsire23/Switch-Fightstick/blob/master/Joystick.c). 
+    - COLLECTING: Repeatedly grabs eggs from the day care lady on route 5 
+    - HATCHING: Repeatedly hatches boxes of pokemon  
+    - RELEASING: Releases boxes of pokemon. Set the variable numBoxes to the number of boxes you would like to relase. (NOTE: only works if releasing full boxes of pokemon) 
 4. In terminal navigate to the inside of the project directory 
 
 5. Make the file in terminal enter: 
