@@ -38,6 +38,7 @@ int portsval = 0;
 int collectCycle = 0; 
 int numReleased = 0; 
 int boxCycle = 0; 
+int baseeggstepmult = 2; 
 
 bool boxOpened = false; 
 
@@ -49,7 +50,7 @@ typedef enum {
 
 Modes mode = HATCHING;
 int eggChecks = 300; 
-int numBoxes = 4; 
+int numBoxes = 10; 
 
 static const command sync[] = {
 	// Setup controller
@@ -103,7 +104,7 @@ static const command grabColumn[] = {
 //Allows drops column after 
 
 static const command spin[] = {
-	{SPIN, 2800}
+	{SPIN, 5600}
 };
 
 //move left a certain number of times first if needed 
