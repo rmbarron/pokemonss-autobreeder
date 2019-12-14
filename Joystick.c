@@ -37,6 +37,8 @@ int duration_count = 0;
 int portsval = 0;
 int collectCycle = 0; 
 int numReleased = 0; 
+int boxCycle = 0; 
+
 bool boxOpened = false; 
 
 typedef enum {
@@ -45,8 +47,9 @@ typedef enum {
 	RELEASING
 } Modes; 
 
-Modes mode = RELEASING; 
-int numToRelease = 2;
+Modes mode = HATCHING;
+int eggChecks = 300; 
+int numBoxes = 4; 
 
 static const command sync[] = {
 	// Setup controller
@@ -355,58 +358,58 @@ int main(void) {
 			}
 		}
 
-		if (mode == RELEASING && numReleased < numToRelease) {
-		//open box 
-		if (boxOpened == false) {
-			runCommand(openPC[0]); 
-			runCommand(openPC[1]); 
-			runCommand(openPC[2]); 
-			runCommand(openPC[3]); 
-			runCommand(openPC[4]); 
-			runCommand(openPC[5]);
-			boxOpened = true;  
-		}
-		int col; 
-		for (col = 0; col < 6; col++) {
-			int row; 
-			for (row = 0; row < 5; row++) {
-				//release 
-				runCommand(release[0]);
-				runCommand(release[1]);
-				runCommand(release[2]);
-				runCommand(release[3]);
-				runCommand(release[4]);
-				runCommand(release[5]);
-				runCommand(release[6]);
-				runCommand(release[7]);
-				runCommand(release[8]);
-				runCommand(release[9]);
-				runCommand(release[10]);
-				runCommand(release[11]);
-				runCommand(release[12]);
-				runCommand(release[13]);
-				//go down 
-
-				runCommand(movePokemon[4]);
-				runCommand(movePokemon[5]); 
+		if (mode == RELEASING && numReleased < numBoxes) {
+			//open box 
+			if (boxOpened == false) {
+				runCommand(openPC[0]); 
+				runCommand(openPC[1]); 
+				runCommand(openPC[2]); 
+				runCommand(openPC[3]); 
+				runCommand(openPC[4]); 
+				runCommand(openPC[5]);
+				boxOpened = true;  
 			}
-			//go back to top and move over 
-				runCommand(movePokemon[4]);
-				runCommand(movePokemon[5]); 
-				runCommand(movePokemon[4]);
-				runCommand(movePokemon[5]); 
-				runCommand(movePokemon[2]);
-				runCommand(movePokemon[3]); 		
-		}
-		//Nextbox: 
-		command NextBox = {R, 5}; 
-		command pause = {NOTHING, 5};
-		runCommand(movePokemon[2]);
-		runCommand(movePokemon[3]); 
-		runCommand(NextBox);
-		runCommand(pause); 
+			int col; 
+			for (col = 0; col < 6; col++) {
+				int row; 
+				for (row = 0; row < 5; row++) {
+					//release 
+					runCommand(release[0]);
+					runCommand(release[1]);
+					runCommand(release[2]);
+					runCommand(release[3]);
+					runCommand(release[4]);
+					runCommand(release[5]);
+					runCommand(release[6]);
+					runCommand(release[7]);
+					runCommand(release[8]);
+					runCommand(release[9]);
+					runCommand(release[10]);
+					runCommand(release[11]);
+					runCommand(release[12]);
+					runCommand(release[13]);
+					//go down 
 
-		numReleased++; 	
+					runCommand(movePokemon[4]);
+					runCommand(movePokemon[5]); 
+				}
+				//go back to top and move over 
+					runCommand(movePokemon[4]);
+					runCommand(movePokemon[5]); 
+					runCommand(movePokemon[4]);
+					runCommand(movePokemon[5]); 
+					runCommand(movePokemon[2]);
+					runCommand(movePokemon[3]); 		
+			}
+			//Nextbox: 
+			command NextBox = {R, 5}; 
+			command pause = {NOTHING, 5};
+			runCommand(movePokemon[2]);
+			runCommand(movePokemon[3]); 
+			runCommand(NextBox);
+			runCommand(pause); 
+
+			numReleased++; 	
 		}
 	}
 }

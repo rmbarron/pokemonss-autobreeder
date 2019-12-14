@@ -1,20 +1,50 @@
-# World of Final Fantasy XP Auto-Grinder
+# Pokemon Sword and Shield Auto-Breeder
 
-A fork of a fork of a fork, modified to grind XP in a specific location in World of Final Fantasy, to level my character past level 60, so I can max out a few things in the game.
+A fork of a fork of a fork of a fork, modified to grind automate the breeding process in pokemon sword and shield. Breeding faster makes it easier to both find high IV pokemon and shiny pokemon with less effort. 
 
-See previous projects for some more detailed information / setup process.
+## Setup Instructions for an Arduino R3: 
+1. Download the LUFA library here ([LUFA DOWNLOAD](http://www.fourwalledcubicle.com/LUFA.php)) and extract it's contents in the LUFA folder of the project
 
----
+2. Install packages needed for flashing the Arduino
+    - For Windows: *TBD*
+    - For Linux / Mac: 
+    ```
+    brew install dfu-programmer 
+    brew tap osx-cross/avr
+    brew install avr-gcc     
+    ```
+3. Set the Arduino into DFU mode: 
+    - https://www.arduino.cc/en/Hacking/DFUProgramming8U2 
 
-LUFA has been included as a git submodule, so cloning the repo like this:
+4. In terminal navigate to the inside of the project directory 
+
+5. Make the file in terminal enter: 
+
+6. Flash the arduino with the code by entering the following commands in terminal. 
 
 ```
-git clone --recursive git@github.com:bertrandom/snowball-thrower.git
+sudo dfu-programmer atmega16u2 erase
+sudo dfu-programmer atmega16u2 flash Arduino-usbserial-uno.hex
+sudo dfu-programmer atmega16u2 reset
 ```
 
-will put LUFA in the right directory.
+7. Make sure that you are standing in the appropriate area depending on the mode that you are trying to run the arduino in. 
+    - Collecting: 
+        - Location: Stand slightly to the left of the daycare lady on route 5
+        - Menu status: Menu settings should not matter
+        - Text speed: Fast 
+    - Hatching: 
+        - Location: Start facing the wall to the left of the daycare in the wild area. 
+        - Menu status: Also make sure that your menu cursor is hovering over pokemon, and then exit the menu. 
+        - Text speed: Fast 
+    - Releasing: 
+        - Location: Make sure that your menu cursor is hovering over the pokemon option, and then exit the menu. 
+        - Menu Status: Then stand anywhere without the menus open. 
+        - Text speed: Fast
 
-Now you should be ready to rock. Open a terminal window in the `snowball-thrower` directory, type `make`, and hit enter to compile. If all goes well, the printout in the terminal will let you know it finished the build! Follow the directions on flashing `Joystick.hex` onto your Teensy, which can be found page where you downloaded the Teensy Loader application.
+8. Make sure that no other controllers are connected to the switch besides the docked joycons. 
+
+9. Plug in the Arduino into the switch and let the hunt begin! This can be done through either a USB-C cable (needs testing) or by plugging the arduino directly into the dock. 
 
 #### Thanks
 
