@@ -51,8 +51,8 @@ typedef enum {
 } Modes; 
 
 Modes mode = COLLECTING;
-int eggChecks = 35; 
-int numBoxes = 1; 
+int eggChecks = 330; 
+int numBoxes = 10; 
 
 static const command sync[] = {
 	// Setup controller
@@ -436,17 +436,7 @@ void collect() {
 void hatch() {
 	int numCol;
 	for (numCol = 0; numCol < 6; numCol++) {
-		//open pc 
-		runCommand(openPC[0]); 
-		runCommand(openPC[1]); 
-		runCommand(openPC[2]); 
-		runCommand(openPC[3]); 
-		runCommand(openPC[4]); 
-		runCommand(openPC[5]); 
-		runCommand(openPC[6]);
-		runCommand(openPC[7]); 
-		runCommand(openPC[8]);
-		runCommand(openPC[9]);   
+		openBox();  
 		if (numCol > 0) {
 			//put pokemon away 
 			runCommand(movePokemon[0]);
@@ -454,18 +444,7 @@ void hatch() {
 			runCommand(movePokemon[4]);
 			runCommand(movePokemon[5]); 
 
-			runCommand(grabColumn[0]);
-			runCommand(grabColumn[1]);
-			runCommand(grabColumn[2]);
-			runCommand(grabColumn[3]);
-			runCommand(grabColumn[4]);
-			runCommand(grabColumn[5]);
-			runCommand(grabColumn[6]);
-			runCommand(grabColumn[7]);
-			runCommand(grabColumn[8]);
-			runCommand(grabColumn[9]);
-			runCommand(grabColumn[10]);
-			runCommand(grabColumn[11]);
+			selectColumn(); 
 			
 			//move to appropriate column 
 			int currcol; 
@@ -485,18 +464,7 @@ void hatch() {
 			runCommand(movePokemon[3]);
 		}
 		//Grab first set of eggs 
-		runCommand(grabColumn[0]);
-		runCommand(grabColumn[1]);
-		runCommand(grabColumn[2]);
-		runCommand(grabColumn[3]);
-		runCommand(grabColumn[4]);
-		runCommand(grabColumn[5]);
-		runCommand(grabColumn[6]);
-		runCommand(grabColumn[7]);
-		runCommand(grabColumn[8]);
-		runCommand(grabColumn[9]);
-		runCommand(grabColumn[10]);
-		runCommand(grabColumn[11]);
+		selectColumn(); 
 
 		//Move them to party 
 		int currcol2; 
@@ -533,17 +501,7 @@ void hatch() {
 			runCommand(shortspin);
 		}
 	}
-	//open pc 
-	runCommand(openPC[0]); 
-	runCommand(openPC[1]); 
-	runCommand(openPC[2]); 
-	runCommand(openPC[3]); 
-	runCommand(openPC[4]); 
-	runCommand(openPC[5]); 
-	runCommand(openPC[6]);
-	runCommand(openPC[7]); 
-	runCommand(openPC[8]);
-	runCommand(openPC[9]);
+	openBox(); 
 
 	//put pokemon away 
 	runCommand(movePokemon[0]);
@@ -551,18 +509,7 @@ void hatch() {
 	runCommand(movePokemon[4]);
 	runCommand(movePokemon[5]); 
 
-	runCommand(grabColumn[0]);
-	runCommand(grabColumn[1]);
-	runCommand(grabColumn[2]);
-	runCommand(grabColumn[3]);
-	runCommand(grabColumn[4]);
-	runCommand(grabColumn[5]);
-	runCommand(grabColumn[6]);
-	runCommand(grabColumn[7]);
-	runCommand(grabColumn[8]);
-	runCommand(grabColumn[9]);
-	runCommand(grabColumn[10]);
-	runCommand(grabColumn[11]);
+	selectColumn(); 
 	
 	//move to appropriate column 
 	int currcol; 
