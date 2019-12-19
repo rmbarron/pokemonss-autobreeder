@@ -124,7 +124,8 @@ typedef enum {
 	PLUS,
 	MINUS,
 	TRIGGERS, 
-	SPIN 
+	SPIN, 
+	HOME 
 } Buttons_t;
 
 typedef struct {
@@ -147,4 +148,8 @@ void runCommandList(command moves[]);
 // Prepare the next report for the host.
 void GetNextReport(USB_JoystickReport_Input_t* const ReportData, command move);
 
+//In game tasks
+void openBox(void);
+void selectColumn(void);
+void StorePokemon(int numcol);
 #endif
