@@ -43,6 +43,8 @@ int baseeggstepmult = 2;
 // When putting eggs away in COLLECTING mode, we need to keep track of
 // where in the box we are. Since nothing is multi-threaded, this is relatively
 // safe.
+// currentRow will be 0-4, and currentColumn 0-5.
+// note to self: if we grab 5 at a time, we don't have to care about row
 // TODO: Change collect() to accept row & col to place.
 // TODO: Change collect() to return the next row & col & bool for moving to the
 // next box.
@@ -60,7 +62,7 @@ typedef enum {
 } Modes;
 
 Modes mode = COLLECTING;
-int eggChecks = 330;
+int eggChecks = 30;
 int numBoxes = 10;
 
 static const command sync[] = {
@@ -210,11 +212,11 @@ int main(void) {
 	}
 	if (mode == COLLECTING) {
 		int i;
-		for (i = 0; i < eggChecks; i++) {
+		for (i = 0; i < 5; i++) { // TODO: Make this a configurable param, not a hard coded 5
 			collect();
 		}
 	}
-
+/*
 	if(mode == FLY) {
 		runCommand(buttons[3]);  // x
 		runCommand(nothing[20]);
@@ -393,7 +395,7 @@ int main(void) {
 		runCommand(nothing[4]);
 		runCommand(nothing[4]);
 	}
-
+*/
 }
 
 void runCommandList(command moves[]) {
@@ -413,6 +415,9 @@ void runCommand(command move) {
 
 }
 
+// collect will walk back and forth along the breeding bridge, and collect
+// a single egg from the day care worker.
+// To collect multiple eggs, put this in a loop (typically grabbing 5 at a time)
 void collect() {
 		//Walk left to right
 	int a;
@@ -435,9 +440,10 @@ void collect() {
 	command a4 = {NOTHING, 50};
 	runCommand(a4);
 
-	//MASH B
+	// Mash B as a safety check against when we talk to the day care lady and
+	// an egg wasn't ready for us.
 	int b;
-	for (b = 0; b < 13; b++) {
+	for (b = 0; b < 2; b++) {
 		command b1 = {B, 15};
 		runCommand(b1);
 		command b2 = {NOTHING, 5};
@@ -837,7 +843,7 @@ void GetNextReport(USB_JoystickReport_Input_t* const ReportData, command move) {
 					break;
 			}
 
-			duration_count++;
+			duration_count++;  // Used to check against move.duration in runCommand
 			break;
 
 		case CLEANUP:
