@@ -35,24 +35,33 @@ int xpos = 0;
 int ypos = 0;
 int duration_count = 0;
 int portsval = 0;
-int collectCycle = 0; 
-int numReleased = 0; 
-int boxCycle = 0; 
-int baseeggstepmult = 2; 
+int collectCycle = 0;
+int numReleased = 0;
+int boxCycle = 0;
+int baseeggstepmult = 2;
 
-bool boxOpened = false; 
+// When putting eggs away in COLLECTING mode, we need to keep track of
+// where in the box we are. Since nothing is multi-threaded, this is relatively
+// safe.
+// TODO: Change collect() to accept row & col to place.
+// TODO: Change collect() to return the next row & col & bool for moving to the
+// next box.
+int currentRow = 0;
+int currentColumn = 0;
+
+bool boxOpened = false;
 
 typedef enum {
-	COLLECTING, 
-	HATCHING, 
-	RELEASING, 
-	RAIDRESETTING, 
+	COLLECTING,
+	HATCHING,
+	RELEASING,
+	RAIDRESETTING,
 	FLY
-} Modes; 
+} Modes;
 
 Modes mode = COLLECTING;
-int eggChecks = 330; 
-int numBoxes = 10; 
+int eggChecks = 330;
+int numBoxes = 10;
 
 static const command sync[] = {
 	// Setup controller
@@ -74,55 +83,58 @@ static const command run[] = {
 	{ NOTHING,  10}
 };
 
-// //Hatching: 
+
+// Assumes menu is already over "Pokemon"
 static const command openPC[] = {
 	{X, 5},
 	{NOTHING, 45},
-	{A, 5}, 
+	{A, 5},
 	{NOTHING, 70},
-	{R, 5}, 
+	{R, 5},
 	{NOTHING, 70},
-	{Y, 5}, 
+	// Puts in "multipurpose" select mode
+	{Y, 5},
 	{NOTHING, 5},
-	{Y, 5}, 
+	// Puts in "multiselect" select mode
+	{Y, 5},
 	{NOTHING, 5}
 };
 
 //Note move to the correct column first
 static const command grabColumn[] = {
-	{A, 5}, 
-	{NOTHING, 5},
-	{DOWN, 5}, 
+	{A, 5},
 	{NOTHING, 5},
 	{DOWN, 5},
 	{NOTHING, 5},
-	{DOWN, 5}, 
+	{DOWN, 5},
+	{NOTHING, 5},
+	{DOWN, 5},
 	{NOTHING, 5},
 	{DOWN, 5},
 	{NOTHING, 5},
 	{A, 5},
 	{NOTHING, 5}
 };
-//Allows drops column after 
+//Allows drops column after
 
 static const command spin[] = {
-	//20 cycle 
+	//20 cycle
 	{SPIN, 2800}
 	//40 cycle
 	//{SPIN, 4900}
 };
 
-//move left a certain number of times first if needed 
+//move left a certain number of times first if needed
 static const command movePokemon[] = {
 	//Move left
 	{LEFT, 5},
 	{NOTHING, 5},
 
-	//Move right 
+	//Move right
 	{RIGHT, 5},
-	{NOTHING, 5}, 
+	{NOTHING, 5},
 
-	//Places eggs down 
+	//Places eggs down
 	{DOWN, 5},
 	{NOTHING, 5},
 	{A, 5},
@@ -130,27 +142,27 @@ static const command movePokemon[] = {
 };
 
 static const command release[] = {
-	//Release pokemon 
+	//Release pokemon
 	//a
-	{A, 5}, 
-	{NOTHING, 10}, 
+	{A, 5},
+	{NOTHING, 10},
 	//up
-	{UP, 5}, 
-	{NOTHING, 5}, 
+	{UP, 5},
+	{NOTHING, 5},
 	//up
-	{UP, 5}, 
-	{NOTHING, 5}, 
+	{UP, 5},
+	{NOTHING, 5},
 	//a
-	{A, 5}, 
-	{NOTHING, 40}, 
+	{A, 5},
+	{NOTHING, 40},
 	//up0
-	{UP, 5}, 
-	{NOTHING, 5}, 
-	//a	
-	{A, 5}, 
-	{NOTHING, 65}, 
-	{A, 5}, 
-	{NOTHING, 40}, 
+	{UP, 5},
+	{NOTHING, 5},
+	//a
+	{A, 5},
+	{NOTHING, 65},
+	{A, 5},
+	{NOTHING, 40},
 };
 
 static const command bMovement[] = {
@@ -163,16 +175,16 @@ static const command bMovement[] = {
 static const command nothing[] = {
 	{NOTHING, 5},
 	{NOTHING, 10},
-	{NOTHING, 20}, 
+	{NOTHING, 20},
 	{NOTHING, 30},
 	{NOTHING, 40},
 };
 
 static const command buttons[] = {
-	{HOME, 5}, 
-	{A, 5}, 
+	{HOME, 5},
+	{A, 5},
 	{B, 5},
-	{X, 5}, 
+	{X, 5},
 	{Y, 5}
 };
 
@@ -182,7 +194,7 @@ int main(void) {
 	SetupHardware();
 	// We'll then enable global interrupts for our use.
 	GlobalInterruptEnable();
-	bool setup = true; 
+	bool setup = true;
 	if (setup) {
 		command temp = {TRIGGERS, 50};
 		runCommand(temp);
@@ -190,35 +202,35 @@ int main(void) {
 		runCommand(temp2);
 		command temp3 = {A, 50};
 		runCommand(temp3);
-		setup = false; 
+		setup = false;
 		if (mode == COLLECTING) {
 			command temp4 = { UPRIGHT,    140};
 			runCommand(temp4);
 		}
 	}
 	if (mode == COLLECTING) {
-		int i; 
+		int i;
 		for (i = 0; i < eggChecks; i++) {
-			collect(); 
+			collect();
 		}
 	}
 
 	if(mode == FLY) {
-		runCommand(buttons[3]);
+		runCommand(buttons[3]);  // x
 		runCommand(nothing[20]);
-		runCommand(buttons[1]);
+		runCommand(buttons[1]);  // a
 		runCommand(nothing[4]);
 		runCommand(nothing[4]);
 		runCommand(nothing[2]);
-		
+
 		command a1 = {DOWN, 6};
 		runCommand(a1);
 		runCommand(nothing[1]);
 		command a2 = {RIGHT, 10};
 		runCommand(a2);
-		runCommand(buttons[1]);
+		runCommand(buttons[1]);  // a
 		runCommand(nothing[3]);
-		runCommand(buttons[1]);
+		runCommand(buttons[1]);  // a
 		runCommand(nothing[4]);
 		runCommand(nothing[4]);
 		runCommand(nothing[4]);
@@ -227,52 +239,53 @@ int main(void) {
 		runCommand(nothing[1]);
 		command a4 = {RIGHT, 300};
 		runCommand(a4);
-		command a5 = {L, 5}; 
-		runCommand(a5); 
-		runCommand(buttons[3]);
+		command a5 = {L, 5};
+		runCommand(a5);
+		// Move from map to pokemon box?
+		runCommand(buttons[3]); // x
 		runCommand(nothing[20]);
-		runCommand(bMovement[0]);
-		runCommand(bMovement[1]);
-		runCommand(buttons[2]);
+		runCommand(bMovement[0]);  // UP
+		runCommand(bMovement[1]);  // RIGHT
+		runCommand(buttons[2]);  // B
 		runCommand(nothing[2]);
 		putPokemonAway(1);
 		command a6 = {R, 5};
 		runCommand(a6);
-		int b; 
+		int b;
 		for (b = 0; b < 18; b++) {
 			command b1 = {B, 15};
 			runCommand(b1);
 			command b2 = {NOTHING, 5};
 			runCommand(b2);
 		}
-		mode = HATCHING; 
+		mode = HATCHING;
 	}
 
 	if (mode == HATCHING) {
-		int i = 0; 
+		int i = 0;
 		for (i = 0; i < 11; i++) {
-			hatch(); 
+			hatch();
 		}
 	}
 
 	if (mode == RELEASING) {
-		//open box 
-		int i; 
+		//open box
+		int i;
 		for (i = 0; i < numBoxes; i++) {
 			if (boxOpened == false) {
-				runCommand(openPC[0]); 
-				runCommand(openPC[1]); 
-				runCommand(openPC[2]); 
-				runCommand(openPC[3]); 
-				runCommand(openPC[4]); 
+				runCommand(openPC[0]);
+				runCommand(openPC[1]);
+				runCommand(openPC[2]);
+				runCommand(openPC[3]);
+				runCommand(openPC[4]);
 				runCommand(openPC[5]);
-				boxOpened = true;  
+				boxOpened = true;
 			}
-			int col; 
+			int col;
 			for (col = 0; col < 6; col++) {
-				int row; 
+				int row;
 				for (row = 0; row < 5; row++) {
-					//release 
+					//release
 					runCommand(release[0]);
 					runCommand(release[1]);
 					runCommand(release[2]);
@@ -287,26 +300,26 @@ int main(void) {
 					runCommand(release[11]);
 					runCommand(release[12]);
 					runCommand(release[13]);
-					//go down 
+					//go down
 
 					runCommand(movePokemon[4]);
-					runCommand(movePokemon[5]); 
+					runCommand(movePokemon[5]);
 				}
-				//go back to top and move over 
+				//go back to top and move over
 					runCommand(movePokemon[4]);
-					runCommand(movePokemon[5]); 
+					runCommand(movePokemon[5]);
 					runCommand(movePokemon[4]);
-					runCommand(movePokemon[5]); 
+					runCommand(movePokemon[5]);
 					runCommand(movePokemon[2]);
-					runCommand(movePokemon[3]); 		
+					runCommand(movePokemon[3]);
 			}
-			//Nextbox: 
-			command NextBox = {R, 5}; 
+			//Nextbox:
+			command NextBox = {R, 5};
 			command pause = {NOTHING, 5};
 			runCommand(movePokemon[2]);
-			runCommand(movePokemon[3]); 
+			runCommand(movePokemon[3]);
 			runCommand(NextBox);
-			runCommand(pause); 
+			runCommand(pause);
 		}
 	}
 
@@ -384,25 +397,25 @@ int main(void) {
 }
 
 void runCommandList(command moves[]) {
-	int a = 0; 
+	int a = 0;
 	for (a = 0; a < (sizeof(moves) / sizeof(moves[0])); a++) {
 		runCommand(moves[a]);
 	}
 }
 void runCommand(command move) {
-		duration_count = 0; 
+		duration_count = 0;
 		while(duration_count < move.duration) {
 			// We need to run our task to process and deliver data for our IN and OUT endpoints.
 			HID_Task(move);
 			// We also need to run the main USB management task.
 			USB_USBTask();
 		}
-		
+
 }
 
 void collect() {
-		//Walk left to right 
-	int a; 
+		//Walk left to right
+	int a;
 	for (a = 0; a < 3; a ++) {
 		runCommand(run[0]);
 		runCommand(run[1]);
@@ -423,31 +436,32 @@ void collect() {
 	runCommand(a4);
 
 	//MASH B
-	int b; 
+	int b;
 	for (b = 0; b < 13; b++) {
 		command b1 = {B, 15};
 		runCommand(b1);
 		command b2 = {NOTHING, 5};
 		runCommand(b2);
 	}
-	mode = FLY; 
+// TODO: mode change after # of eggs should be optional
+//	mode = FLY;
 }
 
 void hatch() {
 	int numCol;
 	for (numCol = 0; numCol < 6; numCol++) {
-		openBox();  
+		openBox();
 		if (numCol > 0) {
-			//put pokemon away 
+			//put pokemon away
 			runCommand(movePokemon[0]);
 			runCommand(movePokemon[1]);
 			runCommand(movePokemon[4]);
-			runCommand(movePokemon[5]); 
+			runCommand(movePokemon[5]);
 
-			selectColumn(); 
-			
-			//move to appropriate column 
-			int currcol; 
+			selectColumn();
+
+			//move to appropriate column
+			int currcol;
 			for (currcol = 0; currcol < numCol; currcol++) {
 				runCommand(movePokemon[2]);
 				runCommand(movePokemon[3]);
@@ -458,16 +472,16 @@ void hatch() {
 			runCommand(up2);
 			runCommand(grabColumn[0]);
 			runCommand(grabColumn[1]);
-		
-			//Move to the right by 1 
+
+			//Move to the right by 1
 			runCommand(movePokemon[2]);
 			runCommand(movePokemon[3]);
 		}
-		//Grab first set of eggs 
-		selectColumn(); 
+		//Grab first set of eggs
+		selectColumn();
 
-		//Move them to party 
-		int currcol2; 
+		//Move them to party
+		int currcol2;
 		for (currcol2 = 0; currcol2 <= numCol; currcol2++) {
 			runCommand(movePokemon[0]);
 			runCommand(movePokemon[1]);
@@ -478,7 +492,7 @@ void hatch() {
 		runCommand(movePokemon[7]);
 
 		//Mash B
-		int b; 
+		int b;
 		for (b = 0; b < 18; b++) {
 			command b1 = {B, 15};
 			runCommand(b1);
@@ -486,33 +500,33 @@ void hatch() {
 			runCommand(b2);
 		}
 
-		//Hatch eggs 
+		//Hatch eggs
 		runCommand(spin[0]);
 		int numEggs;
 		for (numEggs = 0; numEggs < 5; numEggs++) {
-			int c; 
+			int c;
 			for (c = 0; c < 37; c++) {
 				command b1 = {B, 15};
 				runCommand(b1);
 				command b2 = {NOTHING, 5};
 				runCommand(b2);
 			}
-			command shortspin = {SPIN, 20}; 
+			command shortspin = {SPIN, 20};
 			runCommand(shortspin);
 		}
 	}
-	openBox(); 
+	openBox();
 
-	//put pokemon away 
+	//put pokemon away
 	runCommand(movePokemon[0]);
 	runCommand(movePokemon[1]);
 	runCommand(movePokemon[4]);
-	runCommand(movePokemon[5]); 
+	runCommand(movePokemon[5]);
 
-	selectColumn(); 
-	
-	//move to appropriate column 
-	int currcol; 
+	selectColumn();
+
+	//move to appropriate column
+	int currcol;
 	for (currcol = 0; currcol < 6; currcol++) {
 		runCommand(movePokemon[2]);
 		runCommand(movePokemon[3]);
@@ -529,7 +543,7 @@ void hatch() {
 	runCommand(movePokemon[2]);
 	runCommand(movePokemon[3]);
 
-	int d; 
+	int d;
 	for (d = 0; d < 20; d++) {
 		command b1 = {B, 15};
 		runCommand(b1);
@@ -539,14 +553,14 @@ void hatch() {
 }
 
 void openBox() {
-	runCommand(openPC[0]); 
-	runCommand(openPC[1]); 
-	runCommand(openPC[2]); 
-	runCommand(openPC[3]); 
-	runCommand(openPC[4]); 
-	runCommand(openPC[5]); 
+	runCommand(openPC[0]);
+	runCommand(openPC[1]);
+	runCommand(openPC[2]);
+	runCommand(openPC[3]);
+	runCommand(openPC[4]);
+	runCommand(openPC[5]);
 	runCommand(openPC[6]);
-	runCommand(openPC[7]); 
+	runCommand(openPC[7]);
 	runCommand(openPC[8]);
 	runCommand(openPC[9]);
 }
@@ -568,15 +582,15 @@ void selectColumn() {
 
 void putPokemonAway(int numCol) {
 	openBox();
-	command a5 = {L, 5}; 
-	runCommand(a5); 
+	command a5 = {L, 5};
+	runCommand(a5);
 	runCommand(nothing[1]);
 	runCommand(movePokemon[0]);
 	runCommand(movePokemon[1]);
 	runCommand(movePokemon[4]);
 	runCommand(movePokemon[5]);
 	selectColumn();
-	int currcol; 
+	int currcol;
 	for (currcol = 0; currcol < numCol; currcol++) {
 		runCommand(movePokemon[2]);
 		runCommand(movePokemon[3]);
@@ -588,7 +602,7 @@ void putPokemonAway(int numCol) {
 	runCommand(grabColumn[0]);
 	runCommand(grabColumn[1]);
 
-	//Move to the right by 1 
+	//Move to the right by 1
 	runCommand(movePokemon[2]);
 	runCommand(movePokemon[3]);
 }
@@ -745,23 +759,23 @@ void GetNextReport(USB_JoystickReport_Input_t* const ReportData, command move) {
 			{
 
 				case UP:
-					ReportData->LY = STICK_MIN;				
+					ReportData->LY = STICK_MIN;
 					break;
 				case UPRIGHT:
 					ReportData->LY = STICK_MIN;
-					ReportData->LX = STICK_MAX;				
+					ReportData->LX = STICK_MAX;
 					break;
-				
+
 				case LEFT:
-					ReportData->LX = STICK_MIN;				
+					ReportData->LX = STICK_MIN;
 					break;
 
 				case DOWN:
-					ReportData->LY = STICK_MAX;				
+					ReportData->LY = STICK_MAX;
 					break;
 
 				case RIGHT:
-					ReportData->LX = STICK_MAX;				
+					ReportData->LX = STICK_MAX;
 					break;
 
 				case PLUS:
@@ -797,22 +811,22 @@ void GetNextReport(USB_JoystickReport_Input_t* const ReportData, command move) {
 					break;
 
 				case THROW:
-					ReportData->LY = STICK_MIN;				
+					ReportData->LY = STICK_MIN;
 					ReportData->Button |= SWITCH_R;
 					break;
 
 				case HOME:
 					ReportData->Button |= SWITCH_HOME;
-					break; 
+					break;
 
 				case TRIGGERS:
 					ReportData->Button |= SWITCH_L | SWITCH_R;
 					break;
 
-				case SPIN: 
-					ReportData->LX = STICK_MIN;		
+				case SPIN:
+					ReportData->LX = STICK_MIN;
 					ReportData->RX = STICK_MAX;
-					break; 		
+					break;
 
 				default:
 					ReportData->LX = STICK_CENTER;
