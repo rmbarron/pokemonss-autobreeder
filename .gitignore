@@ -8,3 +8,6 @@
 *.sym
 *.eep
 LUFA/
+
+# bin created while testing
+Joystick.hex

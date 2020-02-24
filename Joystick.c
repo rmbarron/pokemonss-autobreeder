@@ -62,7 +62,7 @@ typedef enum {
 } Modes;
 
 Modes mode = COLLECTING;
-int eggChecks = 30;
+int eggsToCollect = 60;
 int numBoxes = 10;
 
 static const command sync[] = {
@@ -212,7 +212,7 @@ int main(void) {
 	}
 	if (mode == COLLECTING) {
 		int i;
-		for (i = 0; i < 5; i++) { // TODO: Make this a configurable param, not a hard coded 5
+		for (i = 0; i < eggsToCollect; i++) {
 			collect();
 		}
 	}
@@ -421,7 +421,12 @@ void runCommand(command move) {
 void collect() {
 		//Walk left to right
 	int a;
-	for (a = 0; a < 3; a ++) {
+	// This for loop is a bit of a slider
+	// The fewer passes back and forth, the more quickly you'll get eggs with some
+	// error rate in eggs not being ready.
+	// The more passes made, gathering will be slower but with a higher
+	// success rate.
+	for (a = 0; a < 6; a ++) {
 		runCommand(run[0]);
 		runCommand(run[1]);
 		runCommand(run[2]);
@@ -440,15 +445,85 @@ void collect() {
 	command a4 = {NOTHING, 50};
 	runCommand(a4);
 
-	// Mash B as a safety check against when we talk to the day care lady and
+	// Mash B
+	// We do this for 2 reasons:
+	// 1 as a safety check against when we talk to the day care lady and
 	// an egg wasn't ready for us.
+	// 2 to go through all the "Look, you got an egg! :D" flow.
 	int b;
-	for (b = 0; b < 2; b++) {
+	for (b = 0; b < 13; b++) {
 		command b1 = {B, 15};
 		runCommand(b1);
 		command b2 = {NOTHING, 5};
 		runCommand(b2);
 	}
+
+	// Put this single egg away.
+	// We could run 5 times, and put the entire column away. That would be
+	// simpler, but potentially introduces a very-rare edge case where a pokemon
+	// hatches while we're collecting, so this puts them away immediately.
+
+	openBoxMultipurpose();
+	// The box opens with the cursor on first PC block. The egg will
+	// be the second party member.
+	command doNothing = {NOTHING, 10};
+	command o1 = {LEFT, 5};
+	runCommand(o1);
+	runCommand(doNothing);
+	command o2 = {DOWN, 5};
+	runCommand(o2);
+	runCommand(doNothing);
+	command o3 = {A, 5};
+	runCommand(o3);
+	runCommand(doNothing);
+	// With the pokemon picked up, move to the first PC block.
+	command o4 = {RIGHT, 5};
+	runCommand(o4);
+	runCommand(doNothing);
+	command o5 = {UP, 5};
+	runCommand(o5);
+	runCommand(doNothing);
+
+	// Now we're at 0, 0 on our grid, and can move to the exact spot to put the
+	// egg down.
+
+	int c;
+	for (c = 0; c < currentRow; c++) {
+		command c1 = {DOWN, 5};
+		runCommand(c1);
+		runCommand(doNothing);
+	}
+	int d;
+	for (d = 0; d < currentColumn; d++) {
+		command d1 = {RIGHT, 5};
+		runCommand(d1);
+		runCommand(doNothing);
+	}
+	command placePokemon = {A, 5};
+	runCommand(placePokemon);
+	runCommand(doNothing);
+
+	// Now that we've placed the pokemon, we just have to tell our future
+	// self where the next available row x col pair is.
+	currentRow++;
+	if (currentRow > 4) {
+		currentColumn++;
+		currentRow = 0;
+	}
+	if (currentColumn > 5) {
+		moveToNextBox();
+		currentColumn = 0;
+	}
+
+	// Cool, we've placed a pokemon, now just need to exit the PC and do it all again.
+	int e;
+	for (e = 0; e < 13; e++) {
+		command b1 = {B, 15};
+		runCommand(b1);
+		command b2 = {NOTHING, 5};
+		runCommand(b2);
+	}
+
 // TODO: mode change after # of eggs should be optional
 //	mode = FLY;
 }
@@ -558,6 +633,9 @@ void hatch() {
 	}
 }
 
+// openBox opens your box in "Multiselect" mode, where an entire column
+// of pokemon can be moved at once.
+// Assumes menu is over "Pokemon" tab.
 void openBox() {
 	runCommand(openPC[0]);
 	runCommand(openPC[1]);
@@ -569,6 +647,36 @@ void openBox() {
 	runCommand(openPC[7]);
 	runCommand(openPC[8]);
 	runCommand(openPC[9]);
+}
+
+// openBoxMultipurpose opens your box in "multipurpose" mode,
+// where one can move a single pokemon at a time with only
+// a single "A" to pick them up.
+// Assumes menu is over "Pokemon" tab.
+void openBoxMultipurpose() {
+	runCommand(openPC[0]);
+	runCommand(openPC[1]);
+	runCommand(openPC[2]);
+	runCommand(openPC[3]);
+	runCommand(openPC[4]);
+	runCommand(openPC[5]);
+	runCommand(openPC[6]);
+	runCommand(openPC[7]);
+}
+
+// moveToNextBox moves to the next box in the PC.
+// Assumes the cursor is currently on the last block of the current box.
+void moveToNextBox() {
+	command doUp = {UP, 5};
+	command doNothing = {NOTHING, 10};
+	command doRight = {RIGHT, 5};
+	int a;
+	for (a = 0; a < 5; a++) {
+		runCommand(doUp);
+		runCommand(doNothing);
+	}
+	runCommand(doRight);
+	runCommand(doNothing);
 }
 
 void selectColumn() {

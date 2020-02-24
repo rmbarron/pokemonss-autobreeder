@@ -41,7 +41,7 @@ Current goals:
 
 ```
 sudo dfu-programmer atmega16u2 erase
-sudo dfu-programmer atmega16u2 flash Arduino-usbserial-uno.hex
+sudo dfu-programmer atmega16u2 flash Joystick.hex
 sudo dfu-programmer atmega16u2 reset
 ```
 NOTE: To return your arduino to default condition, flash it with "Arduino-usbserial-uno.hex" from [this repo](https://github.com/arduino/ArduinoCore-avr/tree/master/firmwares/atmegaxxu2/arduino-usbserial).
