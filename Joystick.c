@@ -40,6 +40,27 @@ int numReleased = 0;
 int boxCycle = 0;
 int baseeggstepmult = 2;
 
+bool boxOpened = false;
+
+typedef enum {
+	COLLECTING,
+	COLLECT_THEN_HATCH,
+	HATCHING,
+	RELEASING,
+	RAIDRESETTING,
+	FLY
+} Modes;
+
+Modes mode = COLLECTING;
+int numBoxes = 10;
+// Separate globals are used across COLLECTING and HATCHING modes to make them
+// individually configurable. When using COLLECT_THEN_HATCH, the hatching
+// params will be overridden by the collecting params (overcoming all those
+// sneaky human errors in keeping the numbers consistent).
+
+// Globals used during COLLECTING.
+int eggsToCollect = 60;
+int boxesForward = 0;
 // When putting eggs away in COLLECTING mode, we need to keep track of
 // where in the box we are. Since nothing is multi-threaded, this is relatively
 // safe.
@@ -50,20 +71,13 @@ int baseeggstepmult = 2;
 // next box.
 int currentRow = 0;
 int currentColumn = 0;
-
-bool boxOpened = false;
-
-typedef enum {
-	COLLECTING,
-	HATCHING,
-	RELEASING,
-	RAIDRESETTING,
-	FLY
-} Modes;
-
-Modes mode = COLLECTING;
-int eggsToCollect = 60;
-int numBoxes = 10;
+// Globals used during HATCHING.
+// We hatch in columns, which are 5 eggs at a time.
+// If using COLLECT_THEN_HATCH, these are overridden to comply with
+// COLLECTING args.
+// The remainder of eggs (eggsToCollect % 6) won't be hatched.
+int columnsToHatch = 0;
+int boxesToHatch = 0;
 
 static const command sync[] = {
 	// Setup controller
@@ -205,15 +219,70 @@ int main(void) {
 		command temp3 = {A, 50};
 		runCommand(temp3);
 		setup = false;
-		if (mode == COLLECTING) {
+		if (mode == COLLECTING || mode == COLLECT_THEN_HATCH) {
 			command temp4 = { UPRIGHT,    140};
 			runCommand(temp4);
 		}
+		if (mode == COLLECT_THEN_HATCH) {
+			// Init the args to hatch().
+			columnsToHatch = eggsToCollect / 6;
+			boxesToHatch = columnsToHatch / 5;
+		}
 	}
-	if (mode == COLLECTING) {
+	if (mode == COLLECTING || mode == COLLECT_THEN_HATCH) {
 		int i;
 		for (i = 0; i < eggsToCollect; i++) {
 			collect();
+		}
+	}
+	// We moved forward in the box during egg collecting.
+	// So we have to move back to the box we started at in the PC.
+	if (mode == COLLECT_THEN_HATCH) {
+		openBoxMultipurpose();
+
+		command doUp = {UP, 5};
+		command doNothing = {NOTHING, 10};
+		command doLeft = {LEFT, 5};
+
+		runCommand(doUp);
+		runCommand(doNothing);
+		int i;
+		for (i = 0; i < boxesForward; i++) {
+			runCommand(doLeft);
+			runCommand(doNothing);
+		}
+
+		// Mash B to exit the box.
+		int b;
+		for (b = 0; b < 13; b++) {
+			command b1 = {B, 15};
+			runCommand(b1);
+			command b2 = {NOTHING, 5};
+			runCommand(b2);
+		}
+	}
+	if (mode == COLLECT_THEN_HATCH || mode == HATCHING) {
+		int i;
+		for (i = 0; i < boxesToHatch; i++) {
+			hatch();
+			// Move to the next box.
+			openBox();
+			command doNothing = {NOTHING, 10};
+			command doUp = {UP, 5};
+			command doRight = {RIGHT, 5};
+			command doB = {B, 5};
+
+			runCommand(doUp);
+			runCommand(doNothing);
+			runCommand(doRight);
+			runCommand(doNothing);
+
+			// Mash b to exit the box.
+			int b;
+			for (b = 0; b < 13; b++) {
+				runCommand(doB);
+				runCommand(doNothing);
+			}
 		}
 	}
 /*
@@ -513,6 +582,7 @@ void collect() {
 	if (currentColumn > 5) {
 		moveToNextBox();
 		currentColumn = 0;
+		boxesForward++;
 	}
 
 	// Cool, we've placed a pokemon, now just need to exit the PC and do it all again.
@@ -528,6 +598,118 @@ void collect() {
 //	mode = FLY;
 }
 
+// hatch hatches a column of 5 eggs at a time.
+// Each call to hatch will hatch a single box of 30 eggs.
+void hatch() {
+	command doNothing = {NOTHING, 10};
+	command doUp = {UP, 5};
+	command doRight = {RIGHT, 5};
+	command doLeft = {LEFT, 5};
+	command doDown = {DOWN, 5};
+	command doA = {A, 5};
+	command doB = {B, 5};
+	int currCol;
+
+	// Grab the currCol column, put it in the party, then put it back.
+	for (currCol = 0; currCol < 6; currCol++) {
+		openBox();
+
+		//runCommand(doUp);
+		//runCommand(doNothing);
+
+		int c;
+		for (c = 0; c < currCol; c++) {
+			runCommand(doRight);
+			runCommand(doNothing);
+		}
+
+		selectColumn();
+
+		// The cursor is now at the top of the column holding a column of eggs.
+		int d;
+		for (d = 0; d <= currCol; d++) {
+			runCommand(doLeft);
+			runCommand(doNothing);
+		}
+		runCommand(doDown);
+		runCommand(doNothing);
+		runCommand(doA);
+		runCommand(doNothing);
+
+		// Mash B to get out of the box.
+		int b;
+		for (b = 0; b < 13; b++) {
+			runCommand(doB);
+			runCommand(doNothing);
+		}
+
+		// Now for the actual work.
+		// Run back and forth for ~2800 inputs.
+		// TODO: Is there a way to find #inputs:cycles in game?
+		// Since we're usually next to the day care lady, each pass through run[]
+		// is 160 inputs.
+		int r;
+		for (r = 0; r < 18; r++) {
+			runCommand(run[0]);
+			runCommand(run[1]);
+			runCommand(run[2]);
+			runCommand(run[3]);
+			runCommand(run[4]);
+			runCommand(run[5]);
+		}
+
+		// More B mashing to get through all the egg hatch dialogue.
+		int numEggs;
+		for (numEggs = 0; numEggs < 5; numEggs++) {
+			int numEggsB;
+			// TODO: Can we optimize this time any?
+			for (numEggsB = 0; numEggsB < 37; numEggsB++){
+				runCommand(doB);
+				runCommand(doNothing);
+			}
+			// Very minor inputs to trigger the egg hatches
+			// Since we put them in the box immediately, they should hatch at the
+			// same time.
+			runCommand(doLeft);
+			runCommand(doLeft);
+			runCommand(doNothing);
+			runCommand(doRight);
+			runCommand(doRight);
+			runCommand(doNothing);
+		}
+
+		// Now we have a party full of hatched pokemon and need to put them back.
+		openBox();
+		runCommand(doLeft);
+		runCommand(doNothing);
+		runCommand(doDown);
+		runCommand(doNothing);
+
+		selectColumn();
+
+		runCommand(doRight);
+		runCommand(doNothing);
+		runCommand(doUp);
+		runCommand(doNothing);
+
+		// We're back at 0, 0 and can put the hatched pokemon in their column.
+		int e;
+		for (e = 0; e < currCol; e++) {
+			runCommand(doRight);
+			runCommand(doNothing);
+		}
+		runCommand(doA);
+		runCommand(doNothing);
+
+		// Lastly, we mash B to exit the box.
+		int f;
+		for (f = 0; f < 13; f++) {
+			runCommand(doB);
+			runCommand(doNothing);
+		}
+	}
+}
+/*
 void hatch() {
 	int numCol;
 	for (numCol = 0; numCol < 6; numCol++) {
@@ -632,7 +814,7 @@ void hatch() {
 		runCommand(b2);
 	}
 }
-
+*/
 // openBox opens your box in "Multiselect" mode, where an entire column
 // of pokemon can be moved at once.
 // Assumes menu is over "Pokemon" tab.
