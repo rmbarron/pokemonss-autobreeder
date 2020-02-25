@@ -51,7 +51,7 @@ typedef enum {
 	FLY
 } Modes;
 
-Modes mode = HATCHING;
+Modes mode = COLLECT_THEN_HATCH;
 int numBoxes = 10;
 // Separate globals are used across COLLECTING and HATCHING modes to make them
 // individually configurable. When using COLLECT_THEN_HATCH, the hatching
@@ -75,9 +75,8 @@ int currentColumn = 0;
 // We hatch in columns, which are 5 eggs at a time.
 // If using COLLECT_THEN_HATCH, these are overridden to comply with
 // COLLECTING args.
-// The remainder of eggs (eggsToCollect % 6) won't be hatched.
-int columnsToHatch = 6;
-int boxesToHatch = 1;
+// The remainder of eggs (eggsToCollect % 30) won't be hatched.
+int boxesToHatch = 0;
 
 static const command sync[] = {
 	// Setup controller
@@ -649,7 +648,7 @@ void hatch() {
 		// Since we're usually next to the day care lady, each pass through run[]
 		// is 160 inputs.
 		int r;
-		// A hatch happened at 53 for field egg group
+		// A hatch happened at 53 for eevee.
 		for (r = 0; r < 55; r++) {
 			runCommand(run[0]);
 			runCommand(run[1]);
@@ -661,7 +660,6 @@ void hatch() {
 
 		// More B mashing to get through all the egg hatch dialogue.
 		int numEggs;
-		// This hit be for 3 egg hatches, then hit A.
 		for (numEggs = 0; numEggs < 5; numEggs++) {
 			int numEggsB;
 			// TODO: Can we optimize this time any?
