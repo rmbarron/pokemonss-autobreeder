@@ -51,7 +51,7 @@ typedef enum {
 	FLY
 } Modes;
 
-Modes mode = COLLECTING;
+Modes mode = HATCHING;
 int numBoxes = 10;
 // Separate globals are used across COLLECTING and HATCHING modes to make them
 // individually configurable. When using COLLECT_THEN_HATCH, the hatching
@@ -59,7 +59,7 @@ int numBoxes = 10;
 // sneaky human errors in keeping the numbers consistent).
 
 // Globals used during COLLECTING.
-int eggsToCollect = 60;
+int eggsToCollect = 30;
 int boxesForward = 0;
 // When putting eggs away in COLLECTING mode, we need to keep track of
 // where in the box we are. Since nothing is multi-threaded, this is relatively
@@ -76,8 +76,8 @@ int currentColumn = 0;
 // If using COLLECT_THEN_HATCH, these are overridden to comply with
 // COLLECTING args.
 // The remainder of eggs (eggsToCollect % 6) won't be hatched.
-int columnsToHatch = 0;
-int boxesToHatch = 0;
+int columnsToHatch = 6;
+int boxesToHatch = 1;
 
 static const command sync[] = {
 	// Setup controller
@@ -649,7 +649,8 @@ void hatch() {
 		// Since we're usually next to the day care lady, each pass through run[]
 		// is 160 inputs.
 		int r;
-		for (r = 0; r < 18; r++) {
+		// A hatch happened at 53 for field egg group
+		for (r = 0; r < 55; r++) {
 			runCommand(run[0]);
 			runCommand(run[1]);
 			runCommand(run[2]);
@@ -660,21 +661,23 @@ void hatch() {
 
 		// More B mashing to get through all the egg hatch dialogue.
 		int numEggs;
+		// This hit be for 3 egg hatches, then hit A.
 		for (numEggs = 0; numEggs < 5; numEggs++) {
 			int numEggsB;
 			// TODO: Can we optimize this time any?
-			for (numEggsB = 0; numEggsB < 37; numEggsB++){
+			for (numEggsB = 0; numEggsB < 80; numEggsB++){
 				runCommand(doB);
 				runCommand(doNothing);
 			}
 			// Very minor inputs to trigger the egg hatches
 			// Since we put them in the box immediately, they should hatch at the
 			// same time.
-			runCommand(doLeft);
-			runCommand(doLeft);
+			// duration of 5 doesn't always trigger the next hatch.
+			command doLeft20 = {LEFT, 20};
+			command doRight20 = {RIGHT, 20};
+			runCommand(doLeft20);
 			runCommand(doNothing);
-			runCommand(doRight);
-			runCommand(doRight);
+			runCommand(doRight20);
 			runCommand(doNothing);
 		}
 
